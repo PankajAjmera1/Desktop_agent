@@ -4,7 +4,7 @@ from PIL import ImageGrab
 
 class ScreenshotManager:
     def __init__(self):
-        self.screenshot_interval = 10
+        self.screenshot_interval = 50000
         self.screenshot_path ='./screenshots'
 
     def capture_screenshot(self):

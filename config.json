@@ -1,3 +1,7 @@
 {
-    "screenshot_interval": 10
+    "screenshot_interval": 100,
+    "screenshot_path": "./screenshots",
+    "bucket_name": "workstatusagent",
+    "aws_access_key": "AKIA4MTWLVIZOBAREJYD",
+    "aws_secret_key": "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"
 }

@@ -1,9 +1,12 @@
 import threading
 from screenshot_manager import ScreenshotManager
+from config_manager import ConfigManager
 
 def main():
     try:
-        screenshot_manager = ScreenshotManager()
+        config_manager = ConfigManager()
+        config_manager.load_config()
+        screenshot_manager = ScreenshotManager(config_manager.config)
 
         # Start screenshot thread
         threading.Thread(target=screenshot_manager.start_screenshot_loop).start()

@@ -3,9 +3,9 @@ import time
 from PIL import ImageGrab
 
 class ScreenshotManager:
-    def __init__(self):
-        self.screenshot_interval = 10
-        self.screenshot_path ='./screenshots'
+    def __init__(self,config):
+         self.screenshot_interval = config.get('screenshot_interval',100)  
+         self.screenshot_path = config.get('screenshot_path', './screenshots')  
 
     def capture_screenshot(self):
         screenshot = ImageGrab.grab()

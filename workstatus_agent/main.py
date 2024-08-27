@@ -5,6 +5,7 @@ from timezone_manager import TimezoneManager
 from activity_tracker import ActivityTracker
 import logging
 from low_battery_handler import LowBatteryHandler
+from instance_manager import InstanceManager
 
 
 
@@ -14,9 +15,21 @@ def main():
                         format='%(asctime)s - %(levelname)s - %(message)s')
     
     logging.info("Application started.")
+    
+    screenshot_manager = None
+    activity_tracker = None
+    screenshot_thread = None
+    upload_thread = None
+    activity_thread = None
+    keyboard_thread = None
+    log_upload_thread = None
+    low_battery_thread = None
 
 
     try:
+        # Instance management
+        InstanceManager.check_instance()
+        
         config_manager = ConfigManager()
         config_manager.load_config()
 
@@ -72,19 +85,35 @@ def main():
 
     finally:
         # Wait for threads to finish
-        screenshot_thread.join()
-        upload_thread.join()
-        timezone_thread.join()
-        activity_thread.join()
-        keyboard_thread.join()
-        log_upload_thread.join()
-        low_battery_thread.join()
+        # screenshot_thread.join()
+        # upload_thread.join()
+        # timezone_thread.join()
+        # activity_thread.join()
+        # keyboard_thread.join()
+        # log_upload_thread.join()
+        # low_battery_thread.join()
+        
+        if screenshot_thread:
+            screenshot_thread.join()
+        if upload_thread:
+            upload_thread.join()
+        if activity_thread:
+            activity_thread.join()
+        if keyboard_thread:
+            keyboard_thread.join()
+        if log_upload_thread:
+            log_upload_thread.join()
+        if low_battery_thread:
+            low_battery_thread.join()
+
+        InstanceManager.release_instance()
         
 
         logging.info("All threads stopped.")
         print("All threads stopped.")
         logging.info("Application stopped.")
         print("Application stopped.")
+        
 
         
         

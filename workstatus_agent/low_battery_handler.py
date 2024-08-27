@@ -1,8 +1,8 @@
 import psutil
 
 class LowBatteryHandler:
-    def _init_(self):
-        self.low_battery_threshold = 99  # percentggggg
+    def __init__(self):
+        self.low_battery_threshold = 20  # percentggggg
 
     def monitor_battery(self):
         battery = psutil.sensors_battery()

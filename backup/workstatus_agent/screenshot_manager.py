@@ -1,20 +1,21 @@
+
+import threading
 import os
 import time
 from PIL import ImageGrab
 from s3_uploader import S3Uploader
 
-
 class ScreenshotManager:
-    def __init__(self,config):
-         self.screenshot_interval = config.get('screenshot_interval',100)  
-         self.screenshot_path = config.get('screenshot_path', './screenshots') 
-         self.upload_interval = config.get('upload_interval', 15) 
-         self.s3_uploader = S3Uploader(
+    def __init__(self, config):
+        self.screenshot_interval = config.get('screenshot_interval', 100)
+        self.screenshot_path = config.get('screenshot_path', './screenshots')
+        self.upload_interval = 15 # 10 minutes in seconds
+        self.s3_uploader = S3Uploader(
             config.get('bucket_name'),
             config.get('aws_access_key'),
             config.get('aws_secret_key')
-        )      
-         self.upload_thread_running = True  # To control the upload thread
+        )
+        self.upload_thread_running = True  # To control the upload thread
 
     def capture_screenshot(self):
         screenshot = ImageGrab.grab()
@@ -24,7 +25,7 @@ class ScreenshotManager:
         screenshot.save(screenshot_file)
         print(f"Screenshot saved to {screenshot_file}")
         return screenshot_file
-    
+
     def upload_file(self, file_path, s3_key):
         try:
             self.s3_uploader.upload_file(file_path, s3_key)
@@ -40,12 +41,11 @@ class ScreenshotManager:
                 if os.path.isfile(file_path):
                     s3_key = f"screenshots/{file_name}"
                     self.upload_file(file_path, s3_key)
-    
+
     def start_screenshot_loop(self):
         while True:
             self.capture_screenshot()
             time.sleep(self.screenshot_interval)
 
     def stop_upload_thread(self):
-        self.upload_thread_running = False        
-
+        self.upload_thread_running = False

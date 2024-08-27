@@ -1,15 +1,13 @@
+
 import time
+import logging
 import subprocess
 import platform
-import logging
-
-
 
 class TimezoneManager:
-    def _init_(self):
+    def __init__(self):
         self.current_timezone = self.get_system_timezone()
         logging.info(f"TimezoneManager initialized with timezone: {self.current_timezone}")
-       
 
     def get_system_timezone(self):
         if platform.system() == "Windows":
@@ -18,7 +16,7 @@ class TimezoneManager:
                 result = subprocess.check_output('tzutil /g', shell=True).decode().strip()
                 return result
             except subprocess.CalledProcessError as e:
-                logging.info(f"TimezoneManager initialized with timezone: {self.current_timezone}")
+                logging.error(f"Error retrieving timezone on Windows: {e}")
                 return None
         elif platform.system() == "Linux":
             # On Linux, read from /etc/timezone or use timedatectl
@@ -37,6 +35,7 @@ class TimezoneManager:
                 logging.error(f"Error retrieving timezone on macOS: {e}")
                 return None
         else:
+            logging.error("Unsupported operating system.")
             return None
 
     def detect_timezone_change(self):
@@ -52,4 +51,3 @@ class TimezoneManager:
             except Exception as e:
                 logging.error(f"Error in detecting timezone change: {str(e)}")
             time.sleep(10)
-            

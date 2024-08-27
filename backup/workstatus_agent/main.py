@@ -1,24 +1,21 @@
+
 import threading
+import logging
+import time
+from activity_tracker import ActivityTracker
 from screenshot_manager import ScreenshotManager
 from config_manager import ConfigManager
-from timezone_manager import TimezoneManager
-from activity_tracker import ActivityTracker
-import logging
 from low_battery_handler import LowBatteryHandler
 from instance_manager import InstanceManager
 from error_handler import ErrorHandler
 
-
-
-
-
 def main():
-    #configure logging
+    # Configure logging
     logging.basicConfig(filename='log.txt', level=logging.INFO,
                         format='%(asctime)s - %(levelname)s - %(message)s')
-    
+
     logging.info("Application started.")
-    
+
     screenshot_manager = None
     activity_tracker = None
     screenshot_thread = None
@@ -28,40 +25,27 @@ def main():
     log_upload_thread = None
     low_battery_thread = None
 
-
     try:
         # Instance management
         InstanceManager.check_instance()
-        
+
+        # Load configuration
         config_manager = ConfigManager()
-        config_manager.load_config()
+        config = config_manager.get_config()
 
-        #screentshot
-        screenshot_manager = ScreenshotManager(config_manager.config)
-        #activity tracker
-        activity_tracker = ActivityTracker(config_manager.config)
-
-        # Initialize TimezoneManager
-        timezone_manager = TimezoneManager()
-
-        #low battery
+        # Initialize components
+        screenshot_manager = ScreenshotManager(config)
+        activity_tracker = ActivityTracker(config)
         low_battery_handler = LowBatteryHandler()
 
-        # screenshot thread
-        screenshot_thread=threading.Thread(target=screenshot_manager.start_screenshot_loop)
-       
+        # Start threads
+        screenshot_thread = threading.Thread(target=screenshot_manager.start_screenshot_loop, daemon=True)
         upload_thread = threading.Thread(target=screenshot_manager.upload_screenshots, daemon=True)
-        
-
-        # Start activity tracker thred
         activity_thread = threading.Thread(target=activity_tracker.detect_activity, daemon=True)
         keyboard_thread = threading.Thread(target=activity_tracker.detect_keyboard, daemon=True)
         log_upload_thread = threading.Thread(target=activity_tracker.upload_log_periodically, daemon=True)
-
-        #threaad for low battery
         low_battery_thread = threading.Thread(target=low_battery_handler.monitor_battery, daemon=True)
 
-        #start all threads
         screenshot_thread.start()
         upload_thread.start()
         activity_thread.start()
@@ -71,32 +55,24 @@ def main():
 
         logging.info("All tasks started.")
 
+        # Run the application
+        time.sleep(600)  # Sleep for 10 minutes
 
-
-        # Start timezone detection thread
-        timezone_thread=threading.Thread(target=timezone_manager.detect_timezone_change)
-        timezone_thread.start()
-
-        print("TimezoneManager thread started.")
-
-        # Stop mechanisms
-        screenshot_manager.stop_upload_thread()
-        
+    except SystemExit as e:
+        logging.error(f"SystemExit occurred: {str(e)}")
+        ErrorHandler.handle_abrupt_shutdown()
     except Exception as e:
-        #logging error
         logging.error(f"An error occurred: {str(e)}")
         ErrorHandler.handle_abrupt_shutdown()
 
     finally:
-        # Wait for threads to finish
-        # screenshot_thread.join()
-        # upload_thread.join()
-        # timezone_thread.join()
-        # activity_thread.join()
-        # keyboard_thread.join()
-        # log_upload_thread.join()
-        # low_battery_thread.join()
-        
+        # # Stop and join threads
+        # if screenshot_manager:
+        #     screenshot_manager.stop_upload_thread()  # Ensure this method signals the thread to stop
+        # if activity_tracker:
+        #     activity_tracker.stop()  # Ensure this method stops the activity tracker gracefully
+
+        # Join threads safely
         if screenshot_thread:
             screenshot_thread.join()
         if upload_thread:
@@ -111,16 +87,9 @@ def main():
             low_battery_thread.join()
 
         InstanceManager.release_instance()
-        
 
-        logging.info("All threads stopped.")
-        print("All threads stopped.")
+        logging.info("All tasks stopped.")
         logging.info("Application stopped.")
-        print("Application stopped.")
-        
-
-        
-        
 
 if __name__ == "__main__":
     main()

@@ -4,7 +4,7 @@ from config_manager import ConfigManager
 from timezone_manager import TimezoneManager
 from activity_tracker import ActivityTracker
 import logging
-
+from low_battery_handler import LowBatteryHandler
 
 
 
@@ -28,6 +28,9 @@ def main():
         # Initialize TimezoneManager
         timezone_manager = TimezoneManager()
 
+        #low battery
+        low_battery_handler = LowBatteryHandler()
+
         # screenshot thread
         screenshot_thread=threading.Thread(target=screenshot_manager.start_screenshot_loop)
        
@@ -39,12 +42,16 @@ def main():
         keyboard_thread = threading.Thread(target=activity_tracker.detect_keyboard, daemon=True)
         log_upload_thread = threading.Thread(target=activity_tracker.upload_log_periodically, daemon=True)
 
+        #threaad for low battery
+        low_battery_thread = threading.Thread(target=low_battery_handler.monitor_battery, daemon=True)
+
         #start all threads
         screenshot_thread.start()
         upload_thread.start()
         activity_thread.start()
         keyboard_thread.start()
         log_upload_thread.start()
+        low_battery_thread.start()
 
         logging.info("All tasks started.")
 
@@ -71,6 +78,8 @@ def main():
         activity_thread.join()
         keyboard_thread.join()
         log_upload_thread.join()
+        low_battery_thread.join()
+        
 
         logging.info("All threads stopped.")
         print("All threads stopped.")

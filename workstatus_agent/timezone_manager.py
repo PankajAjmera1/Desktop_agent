@@ -6,7 +6,7 @@ import logging
 
 
 class TimezoneManager:
-    def _init_(self):
+    def __init__(self):
         self.current_timezone = self.get_system_timezone()
         logging.info(f"TimezoneManager initialized with timezone: {self.current_timezone}")
        

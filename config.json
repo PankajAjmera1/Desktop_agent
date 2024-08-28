@@ -1,3 +1,7 @@
 {
-    "screenshot_interval": 10
+    "screenshot_interval": 10,
+    "screenshot_path": "./screenshots",
+    "bucket_name": "workstatusagent"
+       
+    
 }

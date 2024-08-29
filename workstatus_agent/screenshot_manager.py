@@ -1,11 +1,12 @@
 import os
 import time
-from PIL import ImageGrab
+from PIL import ImageGrab,ImageFilter
 from s3_uploader import S3Uploader
 
 
 class ScreenshotManager:
     def __init__(self,config):
+         self.blur = config.get('blur',False) #blur config
          self.screenshot_interval = config.get('screenshot_interval',100)  
          self.screenshot_path = config.get('screenshot_path', './screenshots') 
          self.upload_interval = config.get('upload_interval', 15) 
@@ -18,6 +19,8 @@ class ScreenshotManager:
 
     def capture_screenshot(self):
         screenshot = ImageGrab.grab()
+        if self.blur:
+            screenshot = screenshot.filter(ImageFilter.GaussianBlur(5))
         if not os.path.exists(self.screenshot_path):
             os.makedirs(self.screenshot_path)
         screenshot_file = os.path.join(self.screenshot_path, f"screenshot_{int(time.time())}.png")

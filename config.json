@@ -1,8 +1,10 @@
 {
     "screenshot_interval": 10,
     "screenshot_path": "./screenshots",
-    "bucket_name": "workstatusagent",
-    "blur": true
+    "blur": true,
+    "upload_interval": 15,
+    "log_upload_interval": 10  ,
+    "bucket_name": "workstatusagent"
        
     
 }
